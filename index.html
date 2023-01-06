@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+      integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+      crossorigin=""
+    />
+    <script
+      src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+      integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+      crossorigin=""
+    ></script>
+    <title>Document</title>
+  </head>
+  <style>
+    #map {
+      height: 100vh;
+    }
+  </style>
+  <body>
+    <div id="map"></div>
+  </body>
+  <script>
+    var map = L.map("map").setView([51.505, -0.09], 13);
+    L.tileLayer(
+      "https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=GrVBa3EElTUM3C48U4vR",
+      {
+        maxZoom: 19,
+        attribution:
+          '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }
+    ).addTo(map);
+
+    var popup = L.popup();
+
+    function onMapClick(e) {
+      console.log(e);
+      getWeatherdata(e);
+    }
+    async function getWeatherdata(e) {
+      const api = `https://api.openweathermap.org/data/2.5/weather?lat=${e.latlng.lat}&lon=${e.latlng.lng}&units=metric&appid=ddfaba4398b491fa4ef3e29a5e934c6e`;
+
+      let response = await fetch(api);
+      let data = await response.json();
+      console.log(data);
+
+      const { temp } = data.main;
+      const { description } = data.weather[0];
+      const { icon } = data.weather[0];
+      const { temp_max } = data.main;
+      const { temp_min } = data.main;
+      const { speed } = data.wind;
+
+      popup
+        .setLatLng(e.latlng)
+        .setContent(
+          `You clicked the map at ${temp} \xB0 C ${description}  ${temp_max} \xB0 C ${temp_min} \xB0 C ${speed} m/s`
+        )
+        .openOn(map);
+    }
+    map.on("click", onMapClick);
+  </script>
+</html>
